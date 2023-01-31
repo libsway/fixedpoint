@@ -2,7 +2,7 @@
 library Q128x128;
 
 use core::primitives::*;
-use std::{revert::require, math::*, revert::revert, u128::*, u256::*};
+use std::{math::*, revert::require, revert::revert, u128::*, u256::*};
 
 pub enum Q128x128Error {
     DivisionByZero: (),
@@ -153,8 +153,6 @@ impl Q128x128 {
         };
         Q128x128 { value }
     }
-
-          
 }
 
 pub fn most_sig_bit_idx(value: U256) -> u64 {
@@ -173,7 +171,7 @@ pub fn most_sig_bit_idx(value: U256) -> u64 {
             // return v.get(vector_idx).unwrap()
             if (v.get(vector_idx).unwrap() > bit_compare
                 || v.get(vector_idx).unwrap() == bit_compare)
-            {   
+            {
                 return 64 * (v.len() - vector_idx - 1) + (bit_idx);
             }
         }
@@ -185,9 +183,10 @@ pub fn most_sig_bit_idx(value: U256) -> u64 {
 
 pub fn most_sig_bits(value: U256, msb_idx: u8) -> u64 {
     let value_idx = msb_idx / 64u8;
-    let msb_mod   = (msb_idx + 1u8) % 64u8;
+    let msb_mod = (msb_idx + 1u8) % 64u8;
 
-    let first_val: u64 = 0; let second_val: u64 = 0;
+    let first_val: u64 = 0;
+    let second_val: u64 = 0;
 
     let first_val = match value_idx {
         0 => value.d,
@@ -208,41 +207,31 @@ pub fn most_sig_bits(value: U256, msb_idx: u8) -> u64 {
         _ => return 0,
     };
 
-    let lsh_first_val = first_val << (64 - msb_mod);    
-
+    let lsh_first_val = first_val << (64 - msb_mod);
     let rsh_second_val = second_val >> (msb_mod);
-
     (lsh_first_val + rsh_second_val)
 }
 
 #[test]
-fn q128x128_from_uint() {
-}
+fn q128x128_from_uint() {}
 
 #[test]
-fn q128x128_from_u128() {
-}
+fn q128x128_from_u128() {}
 
 #[test]
-fn q128x128_from_u256() {
-}
+fn q128x128_from_u256() {}
 
 #[test]
-fn q128x128_from_q64x64() {
-}
+fn q128x128_from_q64x64() {}
 
 #[test]
-fn q128x128_add() {  
-}
+fn q128x128_add() {}
 
 #[test]
-fn q128x128_subtract() {
-}
+fn q128x128_subtract() {}
 
 #[test]
-fn q128x128_multiply() {
-}
+fn q128x128_multiply() {}
 
 #[test]
-fn q128x128_divide() {
-}
+fn q128x128_divide() {}

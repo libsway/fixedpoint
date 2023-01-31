@@ -2,7 +2,7 @@
 library Q64x64;
 
 use core::primitives::*;
-use std::{revert::require, math::*, revert::revert, u128::*, u256::*};
+use std::{math::*, revert::require, revert::revert, u128::*, u256::*};
 
 use ::Q128x128::Q128x128;
 
@@ -88,11 +88,10 @@ impl core::ops::Subtract for Q64x64 {
 impl Q64x64 {
     /// Multiply a Q64x64 with a Q64x64. Panics of overflow.
     pub fn multiply(self, other: Self) -> Self {
-
         let val_a = (U128 {
             upper: 0,
             lower: self.value.upper,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
             lower: other.value.upper,
         }) << 64;
@@ -100,7 +99,7 @@ impl Q64x64 {
         let val_b = (U128 {
             upper: 0,
             lower: self.value.upper,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
             lower: other.value.lower,
         });
@@ -108,51 +107,52 @@ impl Q64x64 {
         let val_c = (U128 {
             upper: 0,
             lower: self.value.lower,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
             lower: other.value.upper,
         });
-                
+
         let val_d = (U128 {
             upper: 0,
             lower: self.value.lower,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
             lower: other.value.lower,
         }) >> 64;
 
-        Q64x64{ value: val_a + val_b + val_c + val_d }
+        Q64x64 {
+            value: val_a + val_b + val_c + val_d,
+        }
     }
 }
 
 pub fn full_multiply(first: Q64x64, other: Q64x64) -> Q128x128 {
-        let int = U256 {
-            a: 0,
-            b: first.value.upper,
-            c: first.value.lower,
-            d: 0,
-        } * U256 {
-            a: 0,
-            b: other.value.upper,
-            c: 0,
-            d: 0,
-        };
-        let dec = U256 {
-            a: 0,
-            b: first.value.upper,
-            c: first.value.lower,
-            d: 0,
-        } * U256 {
-            a: 0,
-            b: 0,
-            c: other.value.lower,
-            d: 0,
-        } >> 64;
-        return Q128x128 {
-            value: (int + dec),
-        };
+    let int = U256 {
+        a: 0,
+        b: first.value.upper,
+        c: first.value.lower,
+        d: 0,
+    } * U256 {
+        a: 0,
+        b: other.value.upper,
+        c: 0,
+        d: 0,
+    };
+    let dec = U256 {
+        a: 0,
+        b: first.value.upper,
+        c: first.value.lower,
+        d: 0,
+    } * U256 {
+        a: 0,
+        b: 0,
+        c: other.value.lower,
+        d: 0,
+    } >> 64;
+    return Q128x128 {
+        value: (int + dec),
+    };
 }
-
 
 impl core::ops::Divide for Q64x64 {
     /// Divide a Q64x64 by a Q64x64. Panics if divisor is zero.
@@ -246,25 +246,19 @@ impl Root for Q64x64 {
 }
 
 #[test]
-fn q64x64_from() {
-}
+fn q64x64_from() {}
 
 #[test]
-fn q64x64_from_uint() {
-}
+fn q64x64_from_uint() {}
 
 #[test]
-fn q64x64_add() {  
-}
+fn q64x64_add() {}
 
 #[test]
-fn q64x64_subtract() {
-}
+fn q64x64_subtract() {}
 
 #[test]
-fn q64x64_multiply() {
-}
+fn q64x64_multiply() {}
 
 #[test]
-fn q64x64_divide() {
-}
+fn q64x64_divide() {}

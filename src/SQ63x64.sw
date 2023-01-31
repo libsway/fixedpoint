@@ -4,8 +4,7 @@ library SQ63x64;
 use ::Q64x64::Q64x64;
 use ::Q128x128::Q128x128;
 use core::primitives::*;
-use std::{revert::require, math::*, revert::revert, u128::*, u256::*};
-use std::{assert::assert, math::*, revert::revert, u128::*, u256::*};
+use std::{math::*, revert::require, revert::revert, u128::*, u256::*};
 
 pub struct SQ63x64 {
     value: U128,
@@ -20,14 +19,14 @@ impl U128 {
     fn from_uint(value: u64) -> U128 {
         U128 {
             upper: value,
-            lower: 0
+            lower: 0,
         }
     }
 }
 impl SQ63x64 {
     pub fn indent() -> u64 {
         9223372036854775808u64
-    }  
+    }
 }
 
 impl SQ63x64 {
@@ -35,29 +34,29 @@ impl SQ63x64 {
         self.value
     }
     pub fn from(_upper: u64, _lower: u64) -> Self {
-        Self { 
+        Self {
             value: U128 {
                 upper: _upper,
-                lower: _lower
-            }
+                lower: _lower,
+            },
         }
     }
     pub fn from_uint(_upper: u64) -> Self {
         require(_upper < Self::indent() || _upper == Self::indent(), SQ63x64Error::Overflow);
-        Self { 
+        Self {
             value: U128 {
                 upper: _upper,
-                lower: 0
-            }
+                lower: 0,
+            },
         }
     }
     pub fn from_neg(_upper: u64) -> Self {
         require(_upper < Self::indent() || _upper == Self::indent(), SQ63x64Error::Overflow);
-        Self { 
+        Self {
             value: U128 {
                 upper: _upper + 9223372036854775808u64,
-                lower: 0
-            }
+                lower: 0,
+            },
         }
     }
     pub fn from_q64x64(_value: Q64x64) -> Self {
@@ -65,8 +64,8 @@ impl SQ63x64 {
         Self {
             value: U128 {
                 upper: _value.value.upper + 9223372036854775808u64,
-                lower: _value.value.lower
-            }
+                lower: _value.value.lower,
+            },
         }
     }
     fn from_q128x128(_value: Q128x128) -> Self {
@@ -75,8 +74,8 @@ impl SQ63x64 {
         Self {
             value: U128 {
                 upper: _value.value.b + 9223372036854775808u64,
-                lower: _value.value.c
-            }
+                lower: _value.value.c,
+            },
         }
     }
     pub fn denominator() -> u64 {
@@ -107,7 +106,7 @@ impl SQ63x64 {
         if self.value > indent || self.value == indent {
             result = U128 {
                 upper: self.value.upper - indent_u64,
-                lower: self.value.lower
+                lower: self.value.lower,
             }
         }
         result
@@ -144,26 +143,29 @@ impl core::ops::Subtract for SQ63x64 {
             value: self.value - other.value,
         }
     }
-} 
+}
 impl SQ63x64 {
     /// Multiply a SQ63x64 with a SQ63x64. Panics of overflow.
     //TODO: assumes positive values
     fn multiply(self, other: Self) -> Self {
-        let mask = 0x0fffffffffffffff; 
+        let mask = 0x0fffffffffffffff;
         let indent = 0x8000000000000000;
         // self.value = (self.value & mask) * (other.value & mask);
         let val_a = (U128 {
             upper: 0,
-            lower: self.value.upper & mask,
-        })* (U128 {
+            lower: self.value.upper
+            & mask,
+        }) * (U128 {
             upper: 0,
-            lower: other.value.upper & mask,
+            lower: other.value.upper
+            & mask,
         }) << 64;
 
         let val_b = (U128 {
             upper: 0,
-            lower: self.value.upper & mask,
-        })* (U128 {
+            lower: self.value.upper
+            & mask,
+        }) * (U128 {
             upper: 0,
             lower: other.value.lower,
         });
@@ -171,28 +173,30 @@ impl SQ63x64 {
         let val_c = (U128 {
             upper: 0,
             lower: self.value.lower,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
-            lower: other.value.upper & mask,
+            lower: other.value.upper
+            & mask,
         });
-                
+
         let val_d = (U128 {
             upper: 0,
             lower: self.value.lower,
-        })* (U128 {
+        }) * (U128 {
             upper: 0,
             lower: other.value.lower,
         }) >> 64;
         let val = val_a + val_b + val_c + val_d;
-        if (self.value.upper ^ other.value.upper) & indent == indent {
+        if (self.value.upper
+            ^ other.value.upper)
+            & indent == indent
+        {
             //one value is negative
             return SQ63x64 {
-                value: val + U128::from((indent,0)),
+                value: val + U128::from((indent, 0)),
             };
         } else {
-            return SQ63x64 {
-                value: val,
-            };
+            return SQ63x64 { value: val };
         }
     }
 }
@@ -200,22 +204,23 @@ impl SQ63x64 {
 impl core::ops::Divide for SQ63x64 {
     /// Divide a SQ63x64 by a SQ63x64. Panics if divisor is zero.
     fn divide(self, other: Self) -> Self {
-        let mask = 0x0fffffffffffffff; 
+        let mask = 0x0fffffffffffffff;
         let indent = 0x8000000000000000;
         // self.value = (self.value & mask) * (other.value & mask);
         let inverse = (U256 {
             a: 1,
             b: 0,
             c: 0,
-            d: 0
+            d: 0,
         }) / (U256 {
             a: 0,
-            b: other.value.upper & mask,
+            b: other.value.upper
+            & mask,
             c: other.value.lower,
-            d: 0
+            d: 0,
         });
         let other = SQ63x64 {
-                value: U128::from((inverse.c, inverse.d)),
+            value: U128::from((inverse.c, inverse.d)),
         };
         return self * other;
     }
@@ -224,25 +229,26 @@ impl SQ63x64 {
     // Returns the log base 2 value
     pub fn binary_log(ref mut self) -> SQ63x64 {
         require(self.value.upper < 0x8000000000000000, SQ63x64Error::Overflow);
-        let scaling_unit = U128::from((2,0));
-        let two_u128 = U128::from((0,2)); 
+        let scaling_unit = U128::from((2, 0));
+        let two_u128 = U128::from((0, 2)); 
         // find the most significant bit
         let msb_idx = most_sig_bit_idx(self);
+
         
         // integer part is just the bit offset
-        let mut log_result = SQ63x64::from(0,0);
+        let mut log_result = SQ63x64::from(0, 0);
         let mut is_negative = false;
         let mut msb_offset = 0;
 
         if msb_idx > 63u32 {
             msb_offset = msb_idx - 64u32;
-            log_result = SQ63x64::from_uint(msb_offset); 
-        } else { 
-            is_negative = true;     
+            log_result = SQ63x64::from_uint(msb_offset);
+        } else {
+            is_negative = true;
             msb_offset = 64 - msb_idx;
             log_result = SQ63x64::from_neg(msb_offset);
         };
-        
+
         let mut y = self.value >> (msb_offset + 1);
 
         if y == scaling_unit {
@@ -250,18 +256,22 @@ impl SQ63x64 {
         }
 
         // equal to 0.5
-        let half_scaling_unit = U128::from((0,1 << 63)) / two_u128;
+        let half_scaling_unit = U128::from((0, 1 << 63)) / two_u128;
         let mut delta = half_scaling_unit;
         // will perform 31 iterations
-        let zero = U128::from((0,1<<(62-31)));
+        let zero = U128::from((0, 1 << (62 - 31)));
         while delta > zero {
-            y = (y*y) / scaling_unit << 2; // this line is broken
+            y = (y * y) / scaling_unit << 2; // this line is broken
             y = y << 1;
             if y > scaling_unit || y == scaling_unit {
-                if is_negative { 
-                    log_result = log_result - SQ63x64{ value: delta << 1}; 
-                } else { 
-                    log_result = log_result + SQ63x64{ value: delta << 1};
+                if is_negative {
+                    log_result = log_result - SQ63x64 {
+                        value: delta << 1,
+                    };
+                } else {
+                    log_result = log_result + SQ63x64 {
+                        value: delta << 1,
+                    };
                 }
                 y = y >> 1;
             }
@@ -269,7 +279,7 @@ impl SQ63x64 {
             delta = delta >> 1;
         }
         log_result
-    }    
+    }
 }
 impl Root for SQ63x64 {
     /// Sqaure root for SQ63x64
@@ -302,40 +312,31 @@ pub fn most_sig_bit_idx(input: SQ63x64) -> u32 {
 }
 
 #[test]
-fn sq63x64_from_uint() {
-}
+fn sq63x64_from_uint() {}
 
 #[test]
-fn sq63x64_from_neg() {
-}
+fn sq63x64_from_neg() {}
 
 #[test]
-fn sq63x64_from_q64x64() {
-}
+fn sq63x64_from_q64x64() {}
 
 #[test]
-fn sq63x64_from_q128x128() {
-}
+fn sq63x64_from_q128x128() {}
 
 #[test]
-fn sq63x64_abs_u128() {
-}
+fn sq63x64_abs_u128() {}
 
 #[test]
-fn sq63x64_add() {  
-}
+fn sq63x64_add() {}
 
 #[test]
-fn sq63x64_subtract() {
-}
+fn sq63x64_subtract() {}
 
 #[test]
-fn sq63x64_multiply() {
-}
+fn sq63x64_multiply() {}
 
 #[test]
-fn sq63x64_divide() {
-}
+fn sq63x64_divide() {}
 
 #[test]
 fn sq63x64_most_sig_bit_idx() {
